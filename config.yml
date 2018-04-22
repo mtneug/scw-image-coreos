@@ -1,0 +1,312 @@
+update:
+  group: "stable"
+
+locksmith:
+  reboot_strategy: "off"
+
+systemd:
+  units:
+    - name: scw-fetch-ssh-keys.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=SCW fetch ssh keys from metadata
+        Before=sshd.service
+        Requires=network-online.target
+        After=network.target network-online.target
+
+        [Service]
+        Type=oneshot
+        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+        ExecStart=/opt/bin/scw-fetch-ssh-keys
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: scw-generate-root-passwd.service
+      enabled: false
+      contents: |
+        [Unit]
+        Description=SCW generate root password if empty
+        ConditionPathExists=!/root/.pw
+
+        [Service]
+        Type=oneshot
+        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+        ExecStart=/opt/bin/scw-generate-root-passwd
+
+        [Install]
+        WantedBy=basic.target
+
+    - name: scw-set-hostname.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=SCW set hostname from metadata on first boot
+        Requires=network-online.target
+        After=network.target network-online.target
+        ConditionFileNotEmpty=!/etc/hostname
+
+        [Service]
+        Type=oneshot
+        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+        ExecStart=/opt/bin/scw-set-hostname
+
+        [Install]
+        WantedBy=basic.target
+
+    - name: scw-signal-booted.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=SCW signal successful boot
+        Requires=network-online.target
+        After=network.target network-online.target
+
+        [Service]
+        Type=oneshot
+        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+        ExecStart=/opt/bin/scw-signal-state booted
+
+        [Install]
+        WantedBy=basic.target
+
+    - name: scw-swapfile.service
+      enabled: false
+      contents: |
+        [Unit]
+        Description=SCW swapfile
+        DefaultDependencies=no
+        Before=sysinit.target
+
+        [Service]
+        Type=oneshot
+        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+        ExecStart=/opt/bin/scw-swapfile start
+        ExecStop=-/opt/bin/scw-swapfile stop
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: scw-sync-kernel-modules.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=SCW fetch kernel modules from Scaleway mirror
+        Requires=network-online.target
+        After=network.target network-online.target
+        ConditionPathExists=/run/scaleway/remote-boot
+
+        [Service]
+        Type=oneshot
+        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+        ExecStart=/opt/bin/scw-sync-kernel-modules
+
+        [Install]
+        WantedBy=basic.target
+
+storage:
+  files:
+    - path: /etc/motd.d/scw.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        # TODO: Add dynamic configuration
+        local: etc/motd.d/scw.conf
+
+    - path: /etc/hosts.default
+      filesystem: root
+      mode: 0775
+      contents:
+        local: etc/hosts.default
+
+    - path: /etc/scw-kernel-check.conf
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/scw-kernel-check.conf
+
+    - path: /etc/sysctl.d/99-scaleway.conf
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/sysctl.d/99-scaleway.conf
+
+    - path: /root/.s3cfg.sample
+      filesystem: root
+      mode: 0664
+      contents:
+        local: root/.s3cfg.sample
+
+    - path: /opt/bin/scw-check-kernel
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-check-kernel
+
+    - path: /opt/bin/scw-metadata
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-metadata
+
+    - path: /opt/bin/scw-metadata-json
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-metadata-json
+
+    - path: /opt/bin/scw-fetch-ssh-keys
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-fetch-ssh-keys
+
+    - path: /opt/bin/scw-generate-root-passwd
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-generate-root-passwd
+
+    - path: /opt/bin/scw-generate-ssh-keys
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-generate-ssh-keys
+
+    - path: /opt/bin/scw-nbd-disconnect-extra
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-nbd-disconnect-extra
+
+    - path: /opt/bin/scw-nbd-disconnect-root
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-nbd-disconnect-root
+
+    - path: /opt/bin/scw-server-tags
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-server-tags
+
+    - path: /opt/bin/scw-set-hostname
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-set-hostname
+
+    - path: /opt/bin/scw-signal-state
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-signal-state
+
+    - path: /opt/bin/scw-swapfile
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-swapfile
+
+    - path: /opt/bin/scw-sync-connect-extra-volumes
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-sync-connect-extra-volumes
+
+    - path: /opt/bin/scw-sync-kernel-headers
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-sync-kernel-headers
+
+    - path: /opt/bin/scw-sync-kernel-modules
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-sync-kernel-modules
+
+    - path: /opt/bin/scw-userdata
+      filesystem: root
+      mode: 0775
+      contents:
+        local: opt/bin/scw-userdata
+
+    - path: /opt/bin/xnbd-client
+      filesystem: root
+      mode: 0775
+      contents:
+        remote:
+          url: https://github.com/multiarch/build-xnbd-client-static/releases/download/v1.0/x86_64-xnbd-client-static-stripped
+          verification:
+            hash:
+              function: sha512
+              sum: 8d518d1e68583697ad5a670433f8a2c51c98dea7557035c92f52bfa674e978eb3772a3204b192c5bd9e213c4a08bb15e18eaa9c6ddf22b9267855fe153894bf2
+
+  links:
+    - path: /opt/bin/oc-metadata
+      target: /opt/bin/scw-metadata
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-check-kernel
+      target: /opt/bin/scw-check-kernel
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-metadata-json
+      target: /opt/bin/scw-metadata-json
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-swapfile
+      target: /opt/bin/scw-swapfile
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-userdata
+      target: /opt/bin/scw-userdata
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-server-tags
+      target: /opt/bin/scw-server-tags
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-nbd-disconnect-extra
+      target: /opt/bin/scw-nbd-disconnect-extra
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-generate-ssh-keys
+      target: /opt/bin/scw-generate-ssh-keys
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-fetch-ssh-keys
+      target: /opt/bin/scw-fetch-ssh-keys
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-sync-kernel-modules
+      target: /opt/bin/scw-sync-kernel-modules
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-nbd-disconnect-root
+      target: /opt/bin/scw-nbd-disconnect-root
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-sync-kernel-headers
+      target: /opt/bin/scw-sync-kernel-headers
+      hard: false
+      filesystem: root
+
+    - path: /opt/bin/oc-sync-connect-extra-volumes
+      target: /opt/bin/scw-sync-connect-extra-volumes
+      hard: false
+      filesystem: root
