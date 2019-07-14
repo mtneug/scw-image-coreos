@@ -6,3 +6,11 @@ install:
 
 script:
   - ./ct --files-dir rootfs < config.yml > config.ign
+
+deploy:
+  provider: releases
+  api_key:
+    secure: mUlxW9avPsTM5gaCm3wCkFyInDcGsAhw9yBhPHdkNNP/FxcE27nFMxflSpeq3wW+gNW1jghevyQTDm25/QAxNaNieBBocjpULPi4i+vqYmQCKFQoWc6Q3d7ywQJcx3n4xVVlE41aFP+Qaskg6pzpSxWz8k7TRcwCGOzlXLuSsZPj7tjJDEbA9vZcyZRwKNz+3jWvW/YVYdT+6j4uXmKGX+ZW6CBvpD8jx7ZI6fCjTvfvg4uS3dAmFeBQiPcLcVgaH07ZW0hb/5DRaddLxCEpCDK/z6MIE+8ncMGc4qMT1M8L9peIFml4XxK35jaGuB6tOr7Pqp0z/6GXkaiLcmEf1HVvWZxx8C103Dkr0cFY1WvXPsEH7Om5MTtorXVz690dplf0Cb8ir7neOX3EcbZGeY6GgajFdZ8HOh7n7rR+MduVARqXsP5OMiddR+w3Z73dz8o/G2tri9DbVHAJoe4EjASXs7COiyRsywqycX5rsbaBHEmZQLGbkufhm3qBBbmViS0UlWy7xDMWJSNAmPqC63kFcvaj9jho2aYbj0sHMIIreOXGx8lvB8sF7UhOdT5LF7THu4hdd9kZ3vqt5Me2Qtnq9aJe8/yCDbcF6Idygvmmtd3xwvL2WE9uzxBudVXSEfXPvOH6EbFSYvzFJYbzYoiyhQcKfKWTp2pqolre0VQ=
+  file: config.ign
+  on:
+    tags: true
