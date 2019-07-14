@@ -1,8 +1,8 @@
 update:
-  group: "stable"
+  group: stable
 
 locksmith:
-  reboot_strategy: "off"
+  reboot_strategy: off
 
 storage:
   files:
