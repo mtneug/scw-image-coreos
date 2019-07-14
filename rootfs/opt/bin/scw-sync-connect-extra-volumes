@@ -5,25 +5,25 @@
 XNBD_CLIENT=/opt/bin/xnbd-client
 
 get_value() {
-	/opt/bin/scw-metadata --cached "$1"
+    /opt/bin/scw-metadata --cached "$1"
 }
 
 sync_connect_extra_volumes() {
-	for nbd_id in $(get_value VOLUMES)
-	do
-		# ignore root nbd device, it is handled differently.
-		test $nbd_id -eq 0 && continue
+    for nbd_id in $(get_value VOLUMES)
+    do
+        # ignore root nbd device, it is handled differently.
+        test $nbd_id -eq 0 && continue
 
-		export_uri=$(get_value "VOLUMES_${nbd_id}_EXPORT_URI")
-		nbd_host=$(echo $export_uri | sed 's|nbd://\(.*\):.*|\1|')
-		nbd_port=$(echo $export_uri | sed 's|nbd://.*:\(.*\)|\1|')
+        export_uri=$(get_value "VOLUMES_${nbd_id}_EXPORT_URI")
+        nbd_host=$(echo $export_uri | sed 's|nbd://\(.*\):.*|\1|')
+        nbd_port=$(echo $export_uri | sed 's|nbd://.*:\(.*\)|\1|')
 
-		device="/dev/nbd${nbd_id}"
-		until $XNBD_CLIENT -c $device > /dev/null 2>&1
-		do
-			($XNBD_CLIENT $nbd_host $nbd_port -b 4096 $device || sleep 1) > /dev/null 2>&1
-		done
-	done
+        device="/dev/nbd${nbd_id}"
+        until $XNBD_CLIENT -c $device > /dev/null 2>&1
+        do
+            ($XNBD_CLIENT $nbd_host $nbd_port -b 4096 $device || sleep 1) > /dev/null 2>&1
+        done
+    done
 }
 
 sync_connect_extra_volumes

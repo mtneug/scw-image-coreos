@@ -15,7 +15,7 @@ chmod 700 /home/core
 
 # `--upgrade` refreshes the metadata cache
 if [ "$1" = "--upgrade" ]; then
-	/opt/bin/scw-metadata > /dev/null
+    /opt/bin/scw-metadata > /dev/null
 fi
 
 cat << EOF > /home/core/.ssh/authorized_keys
@@ -45,10 +45,10 @@ EOF
 
 # Import custom keys
 if [ -f /home/core/.ssh/instance_keys ]; then
-	cat << EOF >> /home/core/.ssh/authorized_keys
+    cat << EOF >> /home/core/.ssh/authorized_keys
 # Below your custom ssh keys from '/home/core/.ssh/instance_keys'
 EOF
-	(cat /home/core/.ssh/instance_keys | grep -v "^#" || true) >> /home/core/.ssh/authorized_keys
+    (cat /home/core/.ssh/instance_keys | grep -v "^#" || true) >> /home/core/.ssh/authorized_keys
 fi
 
 # authorized_keys should only be readable by the owner and no one else

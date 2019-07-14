@@ -14,9 +14,9 @@ get() {
         RESPONSE=$(curl --local-port 1-1024 --noproxy '*' --silent --write-out "\n%{http_CODE}\n" $URL)
         CODE=$(echo "$RESPONSE" | sed -n '$p')
         BODY=$(echo "$RESPONSE" | sed '$d')
-	echo "$BODY"
+        echo "$BODY"
     else
-	echo "'curl' dependency is missing." >&2
+        echo "'curl' dependency is missing." >&2
     fi
 }
 
@@ -27,7 +27,7 @@ patch() {
         # Using curl
         RESPONSE=$(curl --local-port 1-1024 --noproxy '*' -X PATCH -d "$DATA" -H "Content-Type: text/plain" --silent --write-out "\n%{http_CODE}\n" $URL)
     else
-	echo "'curl' dependency is missing." >&2
+        echo "'curl' dependency is missing." >&2
     fi
 }
 

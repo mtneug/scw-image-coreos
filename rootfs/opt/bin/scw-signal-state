@@ -9,8 +9,8 @@ curl -s --fail -XPATCH -H "Content-Type: application/json" "$SERVER"/state \
      -d "{\"state_detail\": \"$STATE\"}" -o /dev/null
 
 if [ $? -eq 0 ]; then
-  echo "$STATE signal sent!"
+    echo "$STATE signal sent!"
 else
-  echo "Can't send $STATE signal"
-  exit 1
+    echo "Can't send $STATE signal"
+    exit 1
 fi
