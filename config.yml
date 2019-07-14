@@ -4,107 +4,6 @@ update:
 locksmith:
   reboot_strategy: "off"
 
-systemd:
-  units:
-    - name: scw-fetch-ssh-keys.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=SCW fetch ssh keys from metadata
-        Before=sshd.service
-        Requires=network-online.target
-        After=network.target network-online.target
-
-        [Service]
-        Type=oneshot
-        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
-        ExecStart=/opt/bin/scw-fetch-ssh-keys
-
-        [Install]
-        WantedBy=multi-user.target
-
-    - name: scw-generate-root-passwd.service
-      enabled: false
-      contents: |
-        [Unit]
-        Description=SCW generate root password if empty
-        ConditionPathExists=!/root/.pw
-
-        [Service]
-        Type=oneshot
-        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
-        ExecStart=/opt/bin/scw-generate-root-passwd
-
-        [Install]
-        WantedBy=basic.target
-
-    - name: scw-set-hostname.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=SCW set hostname from metadata on first boot
-        Requires=network-online.target
-        After=network.target network-online.target
-        ConditionFileNotEmpty=!/etc/hostname
-
-        [Service]
-        Type=oneshot
-        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
-        ExecStart=/opt/bin/scw-set-hostname
-
-        [Install]
-        WantedBy=basic.target
-
-    - name: scw-signal-booted.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=SCW signal successful boot
-        Requires=network-online.target
-        After=network.target network-online.target
-
-        [Service]
-        Type=oneshot
-        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
-        ExecStart=/opt/bin/scw-signal-state booted
-
-        [Install]
-        WantedBy=basic.target
-
-    - name: scw-swapfile.service
-      enabled: false
-      contents: |
-        [Unit]
-        Description=SCW swapfile
-        DefaultDependencies=no
-        Before=sysinit.target
-
-        [Service]
-        Type=oneshot
-        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
-        ExecStart=/opt/bin/scw-swapfile start
-        ExecStop=-/opt/bin/scw-swapfile stop
-
-        [Install]
-        WantedBy=multi-user.target
-
-    - name: scw-sync-kernel-modules.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=SCW fetch kernel modules from Scaleway mirror
-        Requires=network-online.target
-        After=network.target network-online.target
-        ConditionPathExists=/run/scaleway/remote-boot
-
-        [Service]
-        Type=oneshot
-        Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
-        ExecStart=/opt/bin/scw-sync-kernel-modules
-
-        [Install]
-        WantedBy=basic.target
-
 storage:
   files:
     - path: /etc/motd.d/scw.conf
@@ -131,6 +30,48 @@ storage:
       mode: 0664
       contents:
         local: etc/sysctl.d/99-scaleway.conf
+
+    - path: /etc/systemd/system/scw-generate-root-passwd.service
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/systemd/system/scw-generate-root-passwd.service
+
+    - path: /etc/systemd/system/scw-signal-booted.service
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/systemd/system/scw-signal-booted.service
+
+    - path: /etc/systemd/system/scw-swapfile.service
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/systemd/system/scw-swapfile.service
+
+    - path: /etc/systemd/system/scw-set-hostname.service
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/systemd/system/scw-set-hostname.service
+
+    - path: /etc/systemd/system/scw-sync-kernel-modules.service
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/systemd/system/scw-sync-kernel-modules.service
+
+    - path: /etc/systemd/system/scw-fetch-ssh-keys.service
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/systemd/system/scw-fetch-ssh-keys.service
+
+    - path: /etc/systemd/system-preset/90-scw.preset
+      filesystem: root
+      mode: 0664
+      contents:
+        local: etc/systemd/system-preset/90-scw.preset
 
     - path: /root/.s3cfg.sample
       filesystem: root

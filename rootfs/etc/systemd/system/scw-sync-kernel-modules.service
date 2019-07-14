@@ -1,0 +1,13 @@
+[Unit]
+Description=SCW fetch kernel modules from Scaleway mirror
+Requires=network-online.target
+After=network.target network-online.target
+ConditionPathExists=/run/scaleway/remote-boot
+
+[Service]
+Type=oneshot
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+ExecStart=/opt/bin/scw-sync-kernel-modules
+
+[Install]
+WantedBy=basic.target
